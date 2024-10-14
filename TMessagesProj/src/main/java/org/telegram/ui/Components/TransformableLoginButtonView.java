@@ -14,6 +14,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.Theme;
 
 import java.lang.annotation.Retention;
@@ -51,7 +52,7 @@ public class TransformableLoginButtonView extends View {
     public TransformableLoginButtonView(Context context) {
         super(context);
 
-        backgroundPaint.setColor(Theme.getColor(Theme.key_chats_actionBackground));
+        backgroundPaint.setColor(context.getResources().getColor(R.color.app_main_dark));
 
         outlinePaint.setStrokeWidth(AndroidUtilities.dp(2));
         outlinePaint.setStyle(Paint.Style.STROKE);

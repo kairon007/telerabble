@@ -17,6 +17,7 @@ import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.Theme;
 
 public class OutlineTextContainerView extends FrameLayout {
@@ -113,7 +114,7 @@ public class OutlineTextContainerView extends FrameLayout {
     }
 
     private void setColor(int color) {
-        outlinePaint.setColor(color);
+        outlinePaint.setColor(getResources().getColor(R.color.app_main));
         invalidate();
     }
 
