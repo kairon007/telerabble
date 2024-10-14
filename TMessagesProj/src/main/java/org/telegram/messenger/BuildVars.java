@@ -66,6 +66,7 @@ public class BuildVars {
         return false;
     }
 
+
     private static Boolean betaApp;
     public static boolean isBetaApp() {
         if (betaApp == null) {
