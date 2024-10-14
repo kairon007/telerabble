@@ -104,6 +104,10 @@ import com.google.android.play.core.integrity.IntegrityManager;
 import com.google.android.play.core.integrity.IntegrityManagerFactory;
 import com.google.android.play.core.integrity.IntegrityTokenRequest;
 import com.google.android.play.core.integrity.IntegrityTokenResponse;
+import com.web3auth.core.Web3Auth;
+import com.web3auth.core.types.BuildEnv;
+import com.web3auth.core.types.Network;
+import com.web3auth.core.types.Web3AuthOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -189,6 +193,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressLint("HardwareIds")
@@ -1614,6 +1619,34 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             FileLog.e(e);
         }
     }
+    private Web3Auth web3Auth;
+    // Initialize Web3Auth
+    private void initializeWeb3Auth() {
+        web3Auth = new Web3Auth(new Web3AuthOptions(
+                getContext(),
+                getString(R.string.web3auth_project_id),
+                Network.SAPPHIRE_DEVNET, // pass over the network you want to use (MAINNET or TESTNET or CYAN, AQUA, SAPPHIRE_MAINNET or SAPPHIRE_TESTNET)
+                BuildEnv.STAGING,
+                Uri.parse("org.telegram.messenger://auth"),
+                "",null,null,null,
+                null,null,null,null,null
+        ));
+
+        // Handle user signing in when app is not alive
+        web3Auth.setResultUrl(getParentActivity().getIntent().getData());
+        // Call initialize() in onCreate() to check for any existing session.
+        CompletableFuture<Void> sessionResponse = web3Auth.initialize();
+        sessionResponse.whenComplete((result, error) -> {
+            if (error == null) {
+                System.out.println("PrivKey: " + web3Auth.getPrivkey());
+                System.out.println("ed25519PrivKey: " + web3Auth.getEd25519PrivKey());
+                System.out.println("Web3Auth UserInfo" + web3Auth.getUserInfo());
+                System.out.println("PrivKey: " + result);
+            } else {
+                System.out.println("Some Error: " + error.toString());
+            }
+        });
+    }
 
     private void needFinishActivity(boolean afterSignup, boolean showSetPasswordConfirm, int otherwiseRelogin) {
         if (getParentActivity() != null) {
@@ -1624,6 +1657,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             if (newAccount) {
                 newAccount = false;
                 pendingSwitchingAccount = true;
+                initializeWeb3Auth();
                 ((LaunchActivity) getParentActivity()).switchToAccount(currentAccount, false, obj -> {
                     Bundle args = new Bundle();
                     args.putBoolean("afterSignup", afterSignup);
