@@ -1,9 +1,6 @@
 apply plugin: 'com.android.application'
 
-repositories {
-    mavenCentral()
-    google()
-}
+
 
 configurations {
     compile.exclude module: 'support-v4'
@@ -158,7 +155,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 24
         targetSdkVersion 34
         versionName APP_VERSION_NAME
         ndkVersion "21.4.7075529"

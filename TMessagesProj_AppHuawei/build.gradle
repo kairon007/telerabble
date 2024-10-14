@@ -1,11 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.huawei.agconnect'
 
-repositories {
-    mavenCentral()
-    google()
-    maven { url 'https://developer.huawei.com/repo/' }
-}
+
 
 configurations {
     compile.exclude module: 'support-v4'
@@ -137,7 +133,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 24
         targetSdkVersion 34
         versionName APP_VERSION_NAME
         ndkVersion "21.4.7075529"
