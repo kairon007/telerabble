@@ -31,6 +31,9 @@ import android.opengl.GLUtils;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
@@ -48,6 +51,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.exoplayer2.util.Log;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -88,8 +93,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class IntroActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
     private final static int ICON_WIDTH_DP = 180, ICON_HEIGHT_DP = 300;
 
-    private final Object pagerHeaderTag = new Object(),
-            pagerMessageTag = new Object();
+    private final Object pagerHeaderTag = new Object();
 
     private int currentAccount = UserConfig.selectedAccount;
 
@@ -125,20 +129,11 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         MessagesController.getGlobalMainSettings().edit().putLong("intro_crashed_time", System.currentTimeMillis()).apply();
 
         titles = new String[]{
-                LocaleController.getString(R.string.Page1Title),
-                LocaleController.getString(R.string.Page2Title),
-                LocaleController.getString(R.string.Page3Title),
-                LocaleController.getString(R.string.Page5Title),
-                LocaleController.getString(R.string.Page4Title),
-                LocaleController.getString(R.string.Page6Title)
+                LocaleController.getString(R.string.introPrefix),
         };
         messages = new String[]{
-                LocaleController.getString(R.string.Page1Message),
-                LocaleController.getString(R.string.Page2Message),
-                LocaleController.getString(R.string.Page3Message),
-                LocaleController.getString(R.string.Page5Message),
-                LocaleController.getString(R.string.Page4Message),
-                LocaleController.getString(R.string.Page6Message)
+                LocaleController.getString(R.string.Page1Title),
+
         };
         return true;
     }
@@ -512,8 +507,6 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         public Object instantiateItem(ViewGroup container, int position) {
             TextView headerTextView = new TextView(container.getContext());
             headerTextView.setTag(pagerHeaderTag);
-            TextView messageTextView = new TextView(container.getContext());
-            messageTextView.setTag(pagerMessageTag);
 
             FrameLayout frameLayout = new FrameLayout(container.getContext()) {
                 @Override
@@ -525,27 +518,28 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                     int x = AndroidUtilities.dp(18);
                     headerTextView.layout(x, y, x + headerTextView.getMeasuredWidth(), y + headerTextView.getMeasuredHeight());
 
-                    y += headerTextView.getTextSize();
-                    y += AndroidUtilities.dp(16);
-                    x = AndroidUtilities.dp(16);
-                    messageTextView.layout(x, y, x + messageTextView.getMeasuredWidth(), y + messageTextView.getMeasuredHeight());
                 }
             };
 
             headerTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
             headerTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 26);
             headerTextView.setGravity(Gravity.CENTER);
+            headerTextView.setTypeface(AndroidUtilities.bold());
             frameLayout.addView(headerTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.LEFT, 18, 244, 18, 0));
-
-            messageTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3));
-            messageTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-            messageTextView.setGravity(Gravity.CENTER);
-            frameLayout.addView(messageTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.LEFT, 16, 286, 16, 0));
 
             container.addView(frameLayout, 0);
 
-            headerTextView.setText(titles[position]);
-            messageTextView.setText(AndroidUtilities.replaceTags(messages[position]));
+            String baseText = titles[position];
+            String rabbleText = messages[position];
+            String formattedText = String.format(baseText, rabbleText);
+
+            SpannableString spannable = new SpannableString(formattedText);
+            int rabbleStart = formattedText.indexOf(rabbleText);
+            int rabbleEnd = rabbleStart + rabbleText.length();
+            spannable.setSpan(new ForegroundColorSpan(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3)), 0, rabbleStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannable.setSpan(new ForegroundColorSpan( Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3)), rabbleEnd, formattedText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannable.setSpan(new ForegroundColorSpan( ContextCompat.getColor(container.getContext(), R.color.app_main)), rabbleStart, rabbleEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            headerTextView.setText(spannable);
 
             return frameLayout;
         }
@@ -929,8 +923,6 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                 View ch = viewPager.getChildAt(i);
                 TextView headerTextView = ch.findViewWithTag(pagerHeaderTag);
                 headerTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-                TextView messageTextView = ch.findViewWithTag(pagerMessageTag);
-                messageTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3));
             }
         } else Intro.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
     }

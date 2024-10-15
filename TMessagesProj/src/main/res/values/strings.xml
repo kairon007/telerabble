@@ -3859,8 +3859,9 @@
     <string name="ViewChannelStats">View Channel Stats</string>
     <string name="ViewMessageStatistic">Message Statistic</string>
     <string name="ViewMessage">Open Message</string>
+    <string name="introPrefix">Welcome to %1$s your web3 super-app</string>
     <!--Intro view-->
-    <string name="Page1Title">rabble</string>
+    <string name="Page1Title">rabble.</string>
     <string name="Page2Title">Fast</string>
     <string name="Page3Title">Free</string>
     <string name="Page4Title">Secure</string>
