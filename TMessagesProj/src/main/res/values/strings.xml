@@ -1375,7 +1375,7 @@
     <string name="URL">URL</string>
     <string name="MapPreviewProvider">Map Preview Provider</string>
     <string name="MapPreviewProviderTitle">Map preview provider</string>
-    <string name="MapPreviewProviderTelegram">Telegram</string>
+    <string name="MapPreviewProviderTelegram">rabble.</string>
     <string name="MapPreviewProviderGoogle">Google</string>
     <string name="MapPreviewProviderYandex">Yandex</string>
     <string name="MapPreviewProviderNobody">No previews</string>
@@ -1578,8 +1578,8 @@
     <string name="NotificationGroupFew">%1$s sent %3$s to the group %2$s</string>
     <string name="NotificationGroupAlbum">%1$s sent an album to the group %2$s</string>
     <string name="NotificationGroupForwardedFew">%1$s forwarded %3$s to the group %2$s</string>
-    <string name="NotificationHiddenName">Telegram</string>
-    <string name="NotificationHiddenChatName">Telegram</string>
+    <string name="NotificationHiddenName">rabble.</string>
+    <string name="NotificationHiddenChatName">rabble.</string>
     <string name="NotificationHiddenChatUserName">User</string>
     <string name="NotificationHiddenMessage">New message</string>
     <string name="Reply">Reply</string>
@@ -1643,7 +1643,7 @@
     <string name="NotificationActionPinnedGeoLiveUser">%1$s pinned a live location</string>
     <string name="NotificationActionPinnedGifUser">%1$s pinned a GIF</string>
     <string name="NotificationActionPinnedMusicUser">%1$s pinned an audio file</string>
-    <string name="SecretChatName">Telegram</string>
+    <string name="SecretChatName">rabble.</string>
     <!--contacts view-->
     <string name="SelectContact">Select Contact</string>
     <string name="ShareContactTitle">Share Contact</string>
@@ -3859,7 +3859,8 @@
     <string name="ViewChannelStats">View Channel Stats</string>
     <string name="ViewMessageStatistic">Message Statistic</string>
     <string name="ViewMessage">Open Message</string>
-    <string name="introPrefix">Welcome to %1$s your web3 super-app</string>
+    <string name="introPrefix">Welcome to %1$s\n your web3 super-app</string>
+    <string name="discoverRabble">Discover rabble</string>
     <!--Intro view-->
     <string name="Page1Title">rabble.</string>
     <string name="Page2Title">Fast</string>

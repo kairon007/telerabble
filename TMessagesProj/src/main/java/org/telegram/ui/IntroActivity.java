@@ -26,6 +26,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.os.Build;
@@ -52,7 +53,7 @@ import androidx.core.graphics.ColorUtils;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.exoplayer2.util.Log;
+
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -79,7 +80,7 @@ import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RLottieDrawable;
 import org.telegram.ui.Components.RLottieImageView;
 import org.telegram.ui.Components.SimpleThemeDescription;
-import org.telegram.ui.Components.voip.CellFlickerDrawable;
+
 
 import java.util.ArrayList;
 
@@ -148,7 +149,16 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         RLottieImageView themeIconView = new RLottieImageView(context);
         themeIconView.setColorFilter(ContextCompat.getColor(context, R.color.app_main), android.graphics.PorterDuff.Mode.MULTIPLY);
         FrameLayout themeFrameLayout = new FrameLayout(context);
-        themeFrameLayout.addView(themeIconView, LayoutHelper.createFrame(28, 28, Gravity.CENTER));
+        TextView headerTextView = new TextView(context);
+        headerTextView.setTextColor( ContextCompat.getColor(context, R.color.app_main));
+        headerTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30);
+        headerTextView.setGravity(Gravity.CENTER);
+        headerTextView.setText(LocaleController.getString(R.string.Page1Title));
+        headerTextView.setTypeface(AndroidUtilities.bold());
+
+        themeFrameLayout.addView(headerTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 64,  Gravity.CENTER, 0, 0, 0, 0));
+
+        themeFrameLayout.addView(themeIconView, LayoutHelper.createFrame(28, 28, Gravity.CENTER|Gravity.RIGHT));
 
         int themeMargin = 4;
         frameContainerView = new FrameLayout(context) {
@@ -272,40 +282,24 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                 }
             }
         });
-
-        startMessagingButton = new TextView(context) {
-            CellFlickerDrawable cellFlickerDrawable;
-
-            @Override
-            protected void onDraw(Canvas canvas) {
-                super.onDraw(canvas);
-                if (cellFlickerDrawable == null) {
-                    cellFlickerDrawable = new CellFlickerDrawable();
-                    cellFlickerDrawable.drawFrame = false;
-                    cellFlickerDrawable.repeatProgress = 2f;
-                }
-                cellFlickerDrawable.setParentWidth(getMeasuredWidth());
-                AndroidUtilities.rectTmp.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
-                cellFlickerDrawable.draw(canvas, AndroidUtilities.rectTmp, AndroidUtilities.dp(4), null);
-                invalidate();
-            }
-
-            @Override
-            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                int size = MeasureSpec.getSize(widthMeasureSpec);
-                if (size > AndroidUtilities.dp(260)) {
-                    super.onMeasure(MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(320), MeasureSpec.EXACTLY), heightMeasureSpec);
-                } else {
-                    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-                }
-            }
-        };
+        TextView messageTextView = new TextView(context);
+        messageTextView.setTextColor(ContextCompat.getColor(context, R.color.app_main));
+        messageTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        messageTextView.setGravity(Gravity.CENTER);
+        messageTextView.setTypeface(AndroidUtilities.bold());
+        messageTextView.setText(LocaleController.getString(R.string.discoverRabble));
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(ContextCompat.getColor(context, R.color.app_main)); // Set your desired background color
+        background.setCornerRadius(16f); // Set corner radius for rounded corners
+        startMessagingButton = new TextView(context);
+        startMessagingButton.setBackground(background);
         startMessagingButton.setText(LocaleController.getString(R.string.StartMessaging));
         startMessagingButton.setGravity(Gravity.CENTER);
         startMessagingButton.setTypeface(AndroidUtilities.bold());
         startMessagingButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         startMessagingButton.setPadding(AndroidUtilities.dp(34), 0, AndroidUtilities.dp(34), 0);
         frameContainerView.addView(startMessagingButton, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 50, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 16, 0, 16, 76));
+        frameContainerView.addView(messageTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 50, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 16, 0, 16, 26));
         startMessagingButton.setOnClickListener(view -> {
             if (startPressed) {
                 return;
@@ -351,7 +345,7 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
             LocaleController.getInstance().applyLanguage(localeInfo, true, false, currentAccount);
         });
 
-        frameContainerView.addView(themeFrameLayout, LayoutHelper.createFrame(64, 64, Gravity.TOP | Gravity.RIGHT, 0, themeMargin, themeMargin, 0));
+        frameContainerView.addView(themeFrameLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 64, Gravity.TOP , 0, themeMargin, themeMargin, 0));
 
         fragmentView = scrollView;
 
@@ -518,15 +512,16 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                     int x = AndroidUtilities.dp(18);
                     headerTextView.layout(x, y, x + headerTextView.getMeasuredWidth(), y + headerTextView.getMeasuredHeight());
 
+
+
                 }
             };
 
             headerTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
-            headerTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 26);
+            headerTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30);
             headerTextView.setGravity(Gravity.CENTER);
             headerTextView.setTypeface(AndroidUtilities.bold());
             frameLayout.addView(headerTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.LEFT, 18, 244, 18, 0));
-
             container.addView(frameLayout, 0);
 
             String baseText = titles[position];

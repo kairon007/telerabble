@@ -1086,4 +1086,5 @@
     <string name="RemindDayYearAt">\'Herinner op\' d MMM yyyy \'om\' HH:mm</string>
     <string name="BotsMenuTitle">Menu</string>
     <string name="Page1Title">rabble.</string>
+    <string name="StartMessaging">Get Started</string>
 </resources>
