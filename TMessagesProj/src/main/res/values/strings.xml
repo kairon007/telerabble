@@ -3149,6 +3149,8 @@
     <string name="SetAdditionalPasswordInfo">You can set a password that will be required when you log in on a new device in addition to the code you get in the SMS.</string>
     <string name="YourPassword">Your Password</string>
     <string name="YourPasswordHeader">Your password</string>
+    <string name="YourInviteCode">Your Invite Code</string>
+    <string name="EnterYourCode">Enter your Code</string>
     <string name="YourPasswordRemember">Your account is protected by 2-Step Verification.\nDo you still remember your password?</string>
     <string name="YourPasswordRememberYes">Yes, definitely</string>
     <string name="YourPasswordRememberNo">Not sure</string>
@@ -3240,6 +3242,7 @@
     <string name="LoginPassword">Password</string>
     <string name="LoginPasswordText">You have Two-Step Verification enabled, so your account is protected with an additional password.</string>
     <string name="LoginPasswordTextShort">Two-Step Verification enabled. Your account is protected with an additional password.</string>
+    <string name="InviteCodeVerification">Please enter your invite code to get started</string>
     <string name="ForgotPassword">Forgot password?</string>
     <string name="PasswordRecovery">Password Recovery</string>
     <string name="PasswordCode">Code</string>

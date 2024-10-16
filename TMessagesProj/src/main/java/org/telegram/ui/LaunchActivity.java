@@ -9,7 +9,6 @@
 package org.telegram.ui;
 
 import static org.telegram.messenger.LocaleController.formatPluralString;
-import static org.telegram.messenger.LocaleController.getString;
 import static org.telegram.ui.Components.Premium.LimitReachedBottomSheet.TYPE_ACCOUNTS;
 import static org.telegram.ui.Components.Premium.LimitReachedBottomSheet.TYPE_BOOSTS_FOR_USERS;
 
@@ -23,6 +22,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -84,6 +84,7 @@ import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.AssistActionBuilder;
 
 import org.telegram.PhoneFormat.PhoneFormat;
+import org.telegram.messenger.APIConstants;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -121,6 +122,8 @@ import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.browser.Browser;
+import org.telegram.messenger.network.data.APIInterface;
+import org.telegram.messenger.network.data.LoginResponse;
 import org.telegram.messenger.voip.VideoCapturerDevice;
 import org.telegram.messenger.voip.VoIPPendingCall;
 import org.telegram.messenger.voip.VoIPPreNotificationService;
@@ -213,6 +216,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -221,6 +225,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class LaunchActivity extends BasePermissionsActivity implements INavigationLayout.INavigationLayoutDelegate, NotificationCenter.NotificationCenterDelegate, DialogsActivity.DialogsActivityDelegate {
     public final static String EXTRA_FORCE_NOT_INTERNAL_APPS = "force_not_internal_apps";
@@ -822,10 +831,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 actionBarLayout.addFragmentToStack(getClientNotActivatedFragment());
                 drawerLayoutContainer.setAllowOpenDrawer(false, false);
             } else {
-                DialogsActivity dialogsActivity = new DialogsActivity(null);
-                dialogsActivity.setSideMenu(sideMenu);
-                actionBarLayout.addFragmentToStack(dialogsActivity);
-                drawerLayoutContainer.setAllowOpenDrawer(true, false);
+                fetchUser();
             }
 
             try {
@@ -976,7 +982,47 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
         RestrictedLanguagesSelectActivity.checkRestrictedLanguages(false);
     }
+    private void showError(String msg, DialogInterface.OnClickListener listener) {
+        final AlertDialog errorDialog = new AlertDialog.Builder(this)
+                .setMessage(msg)
+                .setPositiveButton(LocaleController.getString(R.string.OK), listener)
+                .create();
+        errorDialog.show();
+    }
+    private void fetchUser() {
+        SharedPreferences preferences = MessagesController.getGlobalMainSettings();
+        if(preferences.getBoolean("rabbleSetup",false)){
+            DialogsActivity dialogsActivity = new DialogsActivity(null);
+            dialogsActivity.setSideMenu(sideMenu);
+            actionBarLayout.addFragmentToStack(dialogsActivity);
+            drawerLayoutContainer.setAllowOpenDrawer(true, false);
+            return;
+        }
+        Retrofit retrofit = ConnectionsManager.getRetrofit();
+        APIInterface apiService = retrofit.create(APIInterface.class);
 
+        Call<LoginResponse> call = apiService.getUser(APIConstants.LOGIN_FAILED_URL);
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if(response.isSuccessful() && Objects.equals(response.body().getStatus(), "success")){
+                    DialogsActivity dialogsActivity = new DialogsActivity(null);
+                    dialogsActivity.setSideMenu(sideMenu);
+                    actionBarLayout.addFragmentToStack(dialogsActivity);
+                    drawerLayoutContainer.setAllowOpenDrawer(true, false);
+                }else{
+                    actionBarLayout.addFragmentToStack(getInviteCodeFragment());
+                    drawerLayoutContainer.setAllowOpenDrawer(false, false);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            //Show errors etc
+                showError(t.getLocalizedMessage(),null);
+            }
+        });
+    }
     private void showAttachMenuBot(TLRPC.TL_attachMenuBot attachMenuBot, String startApp, boolean sidemenu) {
         drawerLayoutContainer.closeDrawer();
         BaseFragment lastFragment = getLastFragment();
@@ -1200,6 +1246,12 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             return new LoginActivity();
         }
         return new IntroActivity();
+    }
+    private BaseFragment getInviteCodeFragment() {
+        if (LoginActivity.loadCurrentState(false, currentAccount).getInt("currentViewNum", 0) != 0) {
+            return new LoginActivity();
+        }
+        return new InviteCodeActivity();
     }
 
     public void showSelectStatusDialog() {

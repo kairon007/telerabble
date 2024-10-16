@@ -14,16 +14,10 @@ import android.os.SystemClock;
 import android.util.Base64;
 import android.util.LongSparseArray;
 
-import com.google.android.exoplayer2.util.Log;
-
 import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLRPC;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 
 public class UserConfig extends BaseController {
 
@@ -35,6 +29,7 @@ public class UserConfig extends BaseController {
     private volatile boolean configLoaded;
     private TLRPC.User currentUser;
     public boolean registeredForPush;
+    public boolean rabbleSetup;
     public int lastSendMessageId = -210000;
     public int lastBroadcastId = -1;
     public int contactsSavedCount;
@@ -145,6 +140,7 @@ public class UserConfig extends BaseController {
                     if (currentAccount == 0) {
                         editor.putInt("selectedAccount", selectedAccount);
                     }
+                    editor.putBoolean("rabbleSetup", rabbleSetup);
                     editor.putBoolean("registeredForPush", registeredForPush);
                     editor.putInt("lastSendMessageId", lastSendMessageId);
                     editor.putInt("contactsSavedCount", contactsSavedCount);
@@ -289,6 +285,7 @@ public class UserConfig extends BaseController {
             if (currentAccount == 0) {
                 selectedAccount = preferences.getInt("selectedAccount", 0);
             }
+            rabbleSetup = preferences.getBoolean("rabbleSetup", false);
             registeredForPush = preferences.getBoolean("registeredForPush", false);
             lastSendMessageId = preferences.getInt("lastSendMessageId", -210000);
             contactsSavedCount = preferences.getInt("contactsSavedCount", 0);
@@ -456,6 +453,7 @@ public class UserConfig extends BaseController {
         currentUser = null;
         clientUserId = 0;
         registeredForPush = false;
+        rabbleSetup = false;
         contactsSavedCount = 0;
         lastSendMessageId = -210000;
         lastBroadcastId = -1;

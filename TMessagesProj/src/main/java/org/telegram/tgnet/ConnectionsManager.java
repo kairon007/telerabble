@@ -7,14 +7,9 @@ import android.content.pm.PackageInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.SystemClock;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.LongSparseArray;
-import android.util.SparseIntArray;
 
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.integrity.IntegrityManager;
 import com.google.android.play.core.integrity.IntegrityManagerFactory;
@@ -24,6 +19,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.telegram.messenger.APIConstants;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -39,20 +35,11 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.PushListenerController;
-import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.StatsController;
 import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
-import org.telegram.ui.ActionBar.BaseFragment;
-import org.telegram.ui.ChatActivity;
-import org.telegram.ui.Components.BulletinFactory;
-import org.telegram.ui.Components.TypefaceSpan;
-import org.telegram.ui.DialogsActivity;
-import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.LoginActivity;
-import org.telegram.ui.PremiumPreviewFragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,6 +69,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ConnectionsManager extends BaseController {
 
@@ -271,6 +263,28 @@ public class ConnectionsManager extends BaseController {
         }
         init(SharedConfig.buildVersion(), TLRPC.LAYER, BuildVars.APP_ID, deviceModel, systemVersion, appVersion, langCode, systemLangCode, configPath, FileLog.getNetworkLogPath(), pushString, fingerprint, timezoneOffset, getUserConfig().getClientUserId(), userPremium, enablePushConnection);
     }
+    private static Retrofit retrofitInstance;
+    private static Retrofit getRetrofitInstance() {
+        if (retrofitInstance == null) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .addInterceptor(loggingInterceptor)
+                    .build();
+            retrofitInstance = new Retrofit.Builder()
+                    .baseUrl(APIConstants.BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .client(okHttpClient) // Optional
+                    .build();
+        }
+        return retrofitInstance;
+    }
+
+    public static Retrofit getRetrofit() {
+        return getRetrofitInstance();
+    }
+
 
     private String getRegId() {
         String pushString = SharedConfig.pushString;
